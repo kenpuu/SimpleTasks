@@ -1,0 +1,53 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.testmcp.simpletasks.view.TaskDetailFragment">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/task_detail_desc"
+            android:layout_width="match_parent"
+            android:text="fasdfa"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:textSize="20sp"/>
+
+        <ListView
+            android:layout_weight="5"
+            android:id="@+id/event_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_above="@+id/footer"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:id="@+id/footer">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:id="@+id/comment_text"
+                android:layout_weight="2"
+                android:layout_gravity="start"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="OK"
+                android:id="@+id/button"
+                android:layout_gravity="end"
+                android:layout_weight="10" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
