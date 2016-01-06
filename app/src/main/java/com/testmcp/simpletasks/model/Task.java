@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Task implements Serializable{
     String descripcion;
@@ -14,7 +13,7 @@ public class Task implements Serializable{
     String fecha_limite;
     Estado estado;
     Integer id;
-    ArrayList<Event> events;
+    ArrayList<TaskEvent> taskEvents;
 
     private static final String jsonDescripcion = "descripcion";
     private static final String jsonID = "id";
@@ -38,18 +37,19 @@ public class Task implements Serializable{
         //this.descripcion = jsonObject.getString(jsonDescripcion);
         this.id = jsonObject.getInt(jsonID);
         this.estado = new Estado(jsonObject.getJSONObject(jsonEstado));
-        this.events = new ArrayList<>();
+        this.taskEvents = new ArrayList<>();
         JSONArray jsonArray = jsonObject.getJSONArray(jsonEvents);
         for (int i = 0; i< jsonArray.length(); i++){
-            this.addEvent(Event.createEvent(jsonArray.getJSONObject(i)));
+            this.addEvent(TaskEvent.createEvent(jsonArray.getJSONObject(i)));
         }
     }
 
-    public void addEvent(Event ev) {
-        if(ev instanceof Comment) {
+    public void addEvent(TaskEvent ev) {
+        /*if(ev instanceof Comment) {
             Comment comment = (Comment)ev;
-            events.add(comment);
-        }
+            taskEvents.add(comment);
+        }*/
+        taskEvents.add(ev);
     }
 
     public String toString() {
@@ -60,9 +60,9 @@ public class Task implements Serializable{
         return descripcion;
     }
 
-    public Event getLastEvent() {
-        if (events.size() > 0) {
-            return Event.getEvent(events.get(events.size() - 1));
+    public TaskEvent getLastEvent() {
+        if (taskEvents.size() > 0) {
+            return TaskEvent.getEvent(taskEvents.get(taskEvents.size() - 1));
         } else {
             return null;
         }
@@ -80,7 +80,7 @@ public class Task implements Serializable{
         return estado;
     }
 
-    public ArrayList<Event> getEvents() {
-        return events;
+    public ArrayList<TaskEvent> getTaskEvents() {
+        return taskEvents;
     }
 }

@@ -51,8 +51,7 @@ class TasksURLs {
             Uri.Builder base_builder = getBaseUriBuilder();
             base_builder.appendPath(Integer.toString(id));
             String urlStr = base_builder.build().toString();
-            URL url = new URL(urlStr);
-            return url;
+            return new URL(urlStr);
         } catch (MalformedURLException e) {
             Log.e("URL ERROR", e.toString());
             e.printStackTrace();
@@ -63,8 +62,8 @@ class TasksURLs {
 
 class NetworkGetter {
     public static String httpGet(URL url) {
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
+        HttpURLConnection urlConnection;
+        BufferedReader reader;
         String jsonStr;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -98,7 +97,6 @@ class NetworkGetter {
         }
     }
 }
-
 
 class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
 
@@ -166,7 +164,7 @@ class TaskDataParser {
     }
 
     public static Task getTask(String taskJsonStr) {
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(taskJsonStr);
             return new Task(jsonObject);

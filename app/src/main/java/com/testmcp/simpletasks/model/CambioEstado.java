@@ -1,12 +1,9 @@
 package com.testmcp.simpletasks.model;
 
-import com.testmcp.simpletasks.model.Estado;
-import com.testmcp.simpletasks.model.Event;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CambioEstado extends Event {
+public class CambioEstado extends TaskEvent {
     Estado estado;
 
     private final static String jsonEstado = "estado_desc";
@@ -24,5 +21,13 @@ public class CambioEstado extends Event {
     @Override
     public String toString() {
         return fecha + " - " + usuario + ": " + estado.toString();
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public String getStrEstado() {
+        return estado.toString();
     }
 }

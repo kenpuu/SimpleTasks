@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Created by mario on 26/12/2015.
  */
 
-public class Event implements Serializable{
+public class TaskEvent implements Serializable{
     Integer id;
     String fecha;
     String usuario;
@@ -19,16 +19,16 @@ public class Event implements Serializable{
     protected static final String jsonFecha = "fecha";
     private static final String jsonTipo = "tipo";
 
-    public Event(Integer id, String fecha, String usuario){
+    public TaskEvent(Integer id, String fecha, String usuario){
         this.id = id;
         this.fecha = fecha;
         this.usuario = usuario;
     }
 
-    public static Event createEvent(JSONObject jsonObject) throws JSONException {
+    public static TaskEvent createEvent(JSONObject jsonObject) throws JSONException {
         String tipo = jsonObject.getString(jsonTipo);
         switch (tipo) {
-            case "cometario":
+            case "comentario":
                 return new Comment(jsonObject);
             case "cambio_estado":
                 return new CambioEstado(jsonObject);
@@ -36,13 +36,19 @@ public class Event implements Serializable{
         return null;
     }
 
-    public static Event getEvent(Event event) {
-        if (event instanceof Comment) {
-            return (Comment) event;
-        } else if (event instanceof CambioEstado) {
-            return (CambioEstado) event;
-        } else {
-            return null;
-        }
+    public static TaskEvent getEvent(TaskEvent taskEvent) {
+        return taskEvent;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public Integer getId() {
+        return id;
     }
 }

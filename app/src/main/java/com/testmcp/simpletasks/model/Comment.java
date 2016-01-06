@@ -3,7 +3,7 @@ package com.testmcp.simpletasks.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Comment extends Event {
+public class Comment extends TaskEvent {
     String contenido;
     protected static final String jsonContenido = "contenido";
 
@@ -15,5 +15,9 @@ public class Comment extends Event {
     @Override
     public String toString() {
         return fecha + " - " + usuario + ": " + contenido;
+    }
+
+    public String getContenido() {
+        return contenido;
     }
 }
