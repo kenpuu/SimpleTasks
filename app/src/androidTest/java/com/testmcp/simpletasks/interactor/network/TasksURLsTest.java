@@ -1,12 +1,9 @@
-package com.testmcp.simpletasks.model.network;
+package com.testmcp.simpletasks.interactor.network;
 
 import junit.framework.TestCase;
 
-import static com.testmcp.simpletasks.model.network.TasksURLs.getURL_task;
+/*import static com.testmcp.simpletasks.interactor.network.TasksURLs;
 
-/**
- * Created by mario on 26/12/2015.
- */
 public class TasksURLsTest extends TestCase {
 
     public void testGetURL_list_tasks() throws Exception {
@@ -16,4 +13,4 @@ public class TasksURLsTest extends TestCase {
     public void testGetURL_task() throws Exception {
         getURL_task(1);
     }
-}
+}*/

@@ -1,17 +1,5 @@
 package com.testmcp.simpletasks;
 
-import android.util.Log;
-
-import com.testmcp.simpletasks.model.Task;
-import com.testmcp.simpletasks.model.network.TasksAPI;
-
-import android.app.Application;
-import android.test.ApplicationTestCase;
-
-import junit.framework.TestCase;
-
-import java.util.List;
-
 /**
  * Created by mario on 26/12/2015.
  */

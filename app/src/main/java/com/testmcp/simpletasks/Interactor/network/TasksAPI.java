@@ -1,8 +1,6 @@
-package com.testmcp.simpletasks.model.network;
+package com.testmcp.simpletasks.interactor.network;
 
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.testmcp.simpletasks.model.Task;
 
@@ -10,93 +8,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by mario on 26/12/2015.
- */
-
-class TasksURLs {
-    private static String domain = "tasks.testmcp.com";
-    private static String[] basepaths = {"tareas", "api"};
-
-    protected static Uri.Builder getBaseUriBuilder (){
-        Uri.Builder uri_builder = new Uri.Builder();
-        uri_builder.scheme("http").authority(domain);
-        for (String path: basepaths) {
-            uri_builder.appendPath(path);
-        }
-        return uri_builder;
-    }
-    // http://task.testmcp.com/tareas/api/
-    protected static URL getURL_list_tasks() {
-        try {
-            return new URL(getBaseUriBuilder().build().toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    protected static URL getURL_task(int id) {
-        try {
-            Uri.Builder base_builder = getBaseUriBuilder();
-            base_builder.appendPath(Integer.toString(id));
-            String urlStr = base_builder.build().toString();
-            return new URL(urlStr);
-        } catch (MalformedURLException e) {
-            Log.e("URL ERROR", e.toString());
-            e.printStackTrace();
-            return null;
-        }
-    }
-}
-
-class NetworkGetter {
-    public static String httpGet(URL url) {
-        HttpURLConnection urlConnection;
-        BufferedReader reader;
-        String jsonStr;
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return null;
-            }
-            jsonStr = buffer.toString();
-            return jsonStr;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-}
 
 class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
 
@@ -109,7 +23,13 @@ class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
         //URL url = new URL(urls[0] + "&appid=" + appid);
         int id = params[0];
         URL url = TasksURLs.getURL_task(id);
-        String taskJsonStr = NetworkGetter.httpGet(url);
+        String taskJsonStr = null;
+        try {
+            taskJsonStr = NetworkGetter.httpGet(url);
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+            output.notAllowedHere();
+        }
         return TaskDataParser.getTask(taskJsonStr);
     }
 
@@ -126,6 +46,45 @@ class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
     }
 }
 
+class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
+
+    private TasksAPI.OnLoginIteractorInterface output;
+    @Override
+    protected Integer doInBackground(Void... params) {
+
+        //Uri
+        // Will contain the raw JSON response as a string.
+        //URL url = new URL(urls[0] + "&appid=" + appid);
+        URL url = TasksURLs.getURL_login();
+        JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("username", "usuario");
+            jsonParam.put("password", "usuario");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String taskJsonStr = NetworkGetter.httpPost(url, jsonParam, 1);
+            return 0;
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+        }
+        //return TaskDataParser.getTaskList(taskJsonStr);
+        return -1;
+    }
+
+    @Override
+    protected void onPostExecute(Integer i) {
+        if (i == 0) output.postLogin();
+        else output.loginFailed();
+    }
+
+    public NetworkLogin(TasksAPI.OnLoginIteractorInterface output) {
+        this.output = output;
+    }
+}
+
 class NetworkTaskListGetter extends AsyncTask<Void, Integer, List<Task>> {
 
     private TasksAPI.LoadTasksOutputInteractorInterface output;
@@ -136,7 +95,13 @@ class NetworkTaskListGetter extends AsyncTask<Void, Integer, List<Task>> {
         // Will contain the raw JSON response as a string.
         //URL url = new URL(urls[0] + "&appid=" + appid);
         URL url = TasksURLs.getURL_list_tasks();
-        String taskJsonStr = NetworkGetter.httpGet(url);
+        String taskJsonStr = null;
+        try {
+            taskJsonStr = NetworkGetter.httpGet(url);
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+            output.notAllowedHere();
+        }
         return TaskDataParser.getTaskList(taskJsonStr);
     }
 
@@ -187,7 +152,6 @@ class TaskDataParser {
             return null;
         }
     }
-
 }
 
 public class TasksAPI {
@@ -196,15 +160,32 @@ public class TasksAPI {
         new NetworkTaskListGetter(loadTasksOutputInteractorInterface).execute();
     }
 
+    public static void login(OnLoginIteractorInterface onLoginIteractorInterface){
+        new NetworkLogin(onLoginIteractorInterface).execute();
+    }
+
     public static void getTask(int id, LoadTasksOutputInteractorInterface loadTasksOutputInteractorInterface) {
         new NetworkTaskGetter(loadTasksOutputInteractorInterface).execute(id);
+    }
+
+    public interface OnLoginIteractorInterface {
+        void postLogin();
+
+        void loginFailed();
     }
 
     public interface LoadTasksOutputInteractorInterface {
         void postGetTaskList(List<Task> taskList);
 
         void postGetTask(Task task);
+
+        void notAllowedHere();
     }
 }
 
-
+class LoginError extends Exception {
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+}
