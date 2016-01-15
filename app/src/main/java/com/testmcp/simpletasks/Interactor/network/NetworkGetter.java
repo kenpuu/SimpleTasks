@@ -16,6 +16,7 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -31,7 +32,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class NetworkGetter {
-    static java.net.CookieManager mCookieManager = new java.net.CookieManager();
+    //static java.net.CookieManager mCookieManager = new java.net.CookieManager();
     static java.net.CookieManager msCookieManager;
     static final String COOKIES_HEADER = "Set-Cookie";
 
@@ -55,11 +56,34 @@ public class NetworkGetter {
         {
             for (String cookie : cookiesHeader)
             {
-                msCookieManager.getCookieStore().add(TasksURLs.getBaseURI() , HttpCookie.parse(cookie).get(0));
+                msCookieManager.getCookieStore().add(TasksURLs.getBaseURI(), HttpCookie.parse(cookie).get(0));
             }
         }
     }
 
+    static void removeCookies() {
+        msCookieManager.getCookieStore().removeAll();
+    }
+
+    static void printCookies(String TAG) {
+        if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+            //While joining the Cookies, use ',' or ';' as needed. Most of the server are using ';'
+            CookieStore cookieStore = msCookieManager.getCookieStore();
+            for (HttpCookie cookie : cookieStore.getCookies()) {
+                Log.i(TAG, cookie.toString());
+            }
+        }
+    }
+
+    private static void addCookiesToConnection(HttpURLConnection urlConnection) {
+        if(msCookieManager.getCookieStore().getCookies().size() > 0)
+        {
+            //While joining the Cookies, use ',' or ';' as needed. Most of the server are using ';'
+            urlConnection.setRequestProperty("Cookie",
+                    TextUtils.join(";", msCookieManager.getCookieStore().getCookies()));
+        }
+
+    }
     public static String httpGet(URL url, int saveCookies) throws LoginError {
         try {
             HttpsURLConnection urlConnection;
@@ -68,26 +92,19 @@ public class NetworkGetter {
             String jsonStr;
             urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
-            if(msCookieManager.getCookieStore().getCookies().size() > 0)
-            {
-                //While joining the Cookies, use ',' or ';' as needed. Most of the server are using ';'
-                urlConnection.setRequestProperty("Cookie",
-                        TextUtils.join(";", msCookieManager.getCookieStore().getCookies()));
-            }
+            addCookiesToConnection(urlConnection);
             urlConnection.connect();
             if (urlConnection.getResponseCode() == 400) {
                 throw new LoginError();
             }
+            if (urlConnection.getResponseCode() == 401) {
+                //throw new NoSessionError();
+                throw new LoginError();
+            }
             if (saveCookies != 0) {
                 setCookies(urlConnection);
-                if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                    //While joining the Cookies, use ',' or ';' as needed. Most of the server are using ';'
-                    CookieStore cookieStore = msCookieManager.getCookieStore();
-                    for (HttpCookie cookie : cookieStore.getCookies()) {
-                        Log.i("LOGIN", cookie.toString());
-                    }
-                }
             }
+            printCookies("httpGet: " + url.toString());
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -141,6 +158,14 @@ public class NetworkGetter {
         HttpsURLConnection.setDefaultSSLSocketFactory(ctx.getSocketFactory());
     }
 
+    private static void addJsonParamsToPost(HttpURLConnection urlConnection, JSONObject jsonParams) throws IOException {
+        if (jsonParams.length() > 0) {
+            DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
+            wr.writeBytes(jsonParams.toString());
+            wr.flush();
+            wr.close();
+        }
+    }
     public static String httpPost(URL url, JSONObject jsonParams, int saveCookies) throws LoginError {
         try {
             HttpsURLConnection urlConnection;
@@ -154,27 +179,17 @@ public class NetworkGetter {
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
-
-            DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream ());
-            wr.writeBytes(jsonParams.toString());
-            wr.flush();
-            wr.close();
-
+            printCookies("httpPost");
+            addCookiesToConnection(urlConnection);
+            addJsonParamsToPost(urlConnection, jsonParams);
             urlConnection.connect();
-
             if (urlConnection.getResponseCode() == 400) {
                 throw new LoginError();
             }
 
             if (saveCookies != 0) {
                 setCookies(urlConnection);
-                if (msCookieManager.getCookieStore().getCookies().size() > 0) {
-                    //While joining the Cookies, use ',' or ';' as needed. Most of the server are using ';'
-                    CookieStore cookieStore = msCookieManager.getCookieStore();
-                    for (HttpCookie cookie : cookieStore.getCookies()) {
-                        Log.i("LOGIN", cookie.toString());
-                    }
-                }
+                printCookies("httpPost despues de setCookies");
             }
 
             InputStream inputStream = urlConnection.getInputStream();

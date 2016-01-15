@@ -1,5 +1,6 @@
 package com.testmcp.simpletasks.view;
 
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -44,7 +45,15 @@ public class TasksListFragment extends Fragment {
     }
 
     public void login() {
-        TasksAPI.login(new OnLoginOuputInteractor());
+        String username = PreferenceManager
+                .getDefaultSharedPreferences(getContext())
+                .getString(getString(R.string.pref_user_name_key), "");
+        String password = PreferenceManager
+                .getDefaultSharedPreferences(getContext())
+                .getString(getString(R.string.pref_password_key), "");
+        if (username != "" && password != "") {
+            TasksAPI.login(username, password, new OnLoginOuputInteractor());
+        }
     }
 
 

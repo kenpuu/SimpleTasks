@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_user_name">Usuario</string>
+    <string name="pref_credentials">Credenciales</string>
+    <string name="pref_user_name_summary">Introduce tu usuario</string>
+    <string name="pref_password">Contraseña</string>
+    <string name="pref_password_summary">Introduce la contraseña</string>
+    <string name="pref_user_name_key">username</string>
+    <string name="pref_password_key">password</string>
+</resources>

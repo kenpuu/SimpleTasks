@@ -89,10 +89,9 @@ public class TasksURLs {
         }
     }
 
-    protected static URL getURL_logout(int id) {
+    protected static URL getURL_logout() {
         try {
             Uri.Builder base_builder = getLogoutAPIUriBuilder();
-            base_builder.appendPath(Integer.toString(id));
             String urlStr = base_builder.build().toString();
             return new URL(urlStr);
         } catch (MalformedURLException e) {

@@ -3,4 +3,5 @@
     <string name="action_settings">Settings</string>
 
     <string name="cambioestado_tareamarcada">Tarea marcada como</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>

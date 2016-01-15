@@ -49,6 +49,8 @@ class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
 class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
 
     private TasksAPI.OnLoginIteractorInterface output;
+    private String username;
+    private String password;
     @Override
     protected Integer doInBackground(Void... params) {
 
@@ -58,8 +60,8 @@ class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
         URL url = TasksURLs.getURL_login();
         JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("username", "usuario");
-            jsonParam.put("password", "usuario");
+            jsonParam.put("username", username);
+            jsonParam.put("password", password);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -80,8 +82,48 @@ class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
         else output.loginFailed();
     }
 
-    public NetworkLogin(TasksAPI.OnLoginIteractorInterface output) {
+    public NetworkLogin(String username, String password, TasksAPI.OnLoginIteractorInterface output) {
+        this.username = username;
+        this.password = password;
         this.output = output;
+    }
+}
+
+class NetworkLogout extends AsyncTask<Void, Void, Integer> {
+
+    @Override
+    protected Integer doInBackground(Void... params) {
+
+        //Uri
+        // Will contain the raw JSON response as a string.
+        //URL url = new URL(urls[0] + "&appid=" + appid);
+        URL url = TasksURLs.getURL_logout();
+        JSONObject jsonParam = new JSONObject();
+        /*try {
+            jsonParam.put("username", username);
+            jsonParam.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+
+        try {
+            String taskJsonStr = NetworkGetter.httpPost(url, jsonParam, 1);
+            return 0;
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+        } finally {
+            NetworkGetter.removeCookies();
+        }
+        //return TaskDataParser.getTaskList(taskJsonStr);
+        return -1;
+    }
+
+    @Override
+    protected void onPostExecute(Integer i) {
+        NetworkGetter.printCookies("onPostExecute Logout: ");
+    }
+
+    public NetworkLogout() {
     }
 }
 
@@ -102,7 +144,9 @@ class NetworkTaskListGetter extends AsyncTask<Void, Integer, List<Task>> {
             loginError.printStackTrace();
             output.notAllowedHere();
         }
-        return TaskDataParser.getTaskList(taskJsonStr);
+        if (taskJsonStr != null)
+            return TaskDataParser.getTaskList(taskJsonStr);
+        else return new ArrayList<Task>();
     }
 
     @Override
@@ -160,8 +204,12 @@ public class TasksAPI {
         new NetworkTaskListGetter(loadTasksOutputInteractorInterface).execute();
     }
 
-    public static void login(OnLoginIteractorInterface onLoginIteractorInterface){
-        new NetworkLogin(onLoginIteractorInterface).execute();
+    public static void login(String username, String password, OnLoginIteractorInterface onLoginIteractorInterface){
+        new NetworkLogin(username, password, onLoginIteractorInterface).execute();
+    }
+
+    public static void logout(){
+        new NetworkLogout().execute();
     }
 
     public static void getTask(int id, LoadTasksOutputInteractorInterface loadTasksOutputInteractorInterface) {
@@ -184,6 +232,13 @@ public class TasksAPI {
 }
 
 class LoginError extends Exception {
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+}
+
+class NoSessionError extends Exception {
     @Override
     public String toString() {
         return super.toString();

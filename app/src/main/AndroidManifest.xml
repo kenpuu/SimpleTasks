@@ -22,6 +22,15 @@
         </activity>
         <activity android:name=".view.TaskDetail" >
         </activity>
+        <activity
+            android:name=".view.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".view.TasksList"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.testmcp.simpletasks.view.TasksList" />
+        </activity>
     </application>
 
 </manifest>
