@@ -7,10 +7,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.testmcp.simpletasks.R;
+import com.testmcp.simpletasks.interactor.LoadTaskOutputInteractor;
+import com.testmcp.simpletasks.interactor.OnCommentAddedOutputInteractor;
+import com.testmcp.simpletasks.interactor.network.TasksAPI;
 import com.testmcp.simpletasks.model.TaskEvent;
 import com.testmcp.simpletasks.model.Task;
 import com.testmcp.simpletasks.view.adapter.EventListAdapter;
@@ -27,6 +32,14 @@ import java.util.ArrayList;
 public class TaskDetailFragment extends Fragment {
     private Task task;
 
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
+    }
+
     public TaskDetailFragment() {
         // Required empty public constructor
     }
@@ -40,22 +53,22 @@ public class TaskDetailFragment extends Fragment {
         }
     }
 
+    public void updateTaskDetail(){
+        TasksAPI.getTask(task.getId(), new LoadTaskOutputInteractor(this));
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.i("TASK_DETAIL_FRAGMENT", "Entra en onCreateView");
         // Inflate the layout for this fragment
         Intent intent = getActivity().getIntent();
-        task = (Task) intent.getSerializableExtra("Task");
-        View rootView = inflater.inflate(R.layout.fragment_task_detail, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_task_detail, container, false);
         if (intent != null && intent.hasExtra("Task")) {
             //String forecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
-            ((TextView) rootView.findViewById(R.id.task_detail_desc))
-                    .setText(task.getDescripcion());
-            ArrayList<TaskEvent> taskEvents = task.getTaskEvents();
-            ListView listView = (ListView) rootView.findViewById(R.id.event_list);
-            EventListAdapter eventListAdapter = new EventListAdapter(taskEvents);
-            listView.setAdapter(eventListAdapter);
+            task = (Task) intent.getSerializableExtra("Task");
+            updateTaskDetail();
         }
         return rootView;
         //return inflater.inflate(R.layout.fragment_task_detail, container, false);

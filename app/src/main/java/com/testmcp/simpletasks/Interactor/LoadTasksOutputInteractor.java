@@ -49,17 +49,6 @@ public class LoadTasksOutputInteractor implements TasksAPI.LoadTasksOutputIntera
         }
     }
 
-    @Override
-    public void postGetTask(Task task) {
-        try {
-            //TextView t = (TextView) getView().findViewById(R.id.text_view_task);
-            //t.setText(task.toString());
-        } catch (NullPointerException e){
-            e.printStackTrace();
-        }
-    }
-
-
     // TODO Mostrar alguna alerta con fallo de login
     @Override
     public void notAllowedHere() {

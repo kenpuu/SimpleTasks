@@ -14,7 +14,7 @@ import java.util.List;
 
 class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
 
-    private TasksAPI.LoadTasksOutputInteractorInterface output;
+    private TasksAPI.LoadTaskOutputInteractorInterface output;
     @Override
     protected Task doInBackground(Integer... params) {
 
@@ -41,7 +41,7 @@ class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
         }
     }
 
-    public NetworkTaskGetter(TasksAPI.LoadTasksOutputInteractorInterface output) {
+    public NetworkTaskGetter(TasksAPI.LoadTaskOutputInteractorInterface output) {
         this.output = output;
     }
 }
@@ -79,7 +79,7 @@ class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
     @Override
     protected void onPostExecute(Integer i) {
         if (i == 0) output.postLogin();
-        else output.loginFailed();
+        else output.notAllowedHere();
     }
 
     public NetworkLogin(String username, String password, TasksAPI.OnLoginIteractorInterface output) {
@@ -162,6 +162,46 @@ class NetworkTaskListGetter extends AsyncTask<Void, Integer, List<Task>> {
     }
 }
 
+class NetworkAddComment extends AsyncTask<Void, Integer, Void> {
+
+    private TasksAPI.OnCommentAdded output;
+    private int taskId;
+    private String contenido;
+
+    @Override
+    protected Void doInBackground(Void... params) {
+
+
+        URL url = TasksURLs.getURL_add_comment(taskId);
+        JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("contenido", contenido);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String taskJsonStr = null;
+        try {
+            taskJsonStr = NetworkGetter.httpPost(url, jsonParam);
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+            output.notAllowedHere();
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void dd) {
+        super.onPostExecute(dd);
+        output.postAddComment();
+    }
+
+    public NetworkAddComment(int taskId, String contenido, TasksAPI.OnCommentAdded output) {
+        this.output = output;
+        this.contenido = contenido;
+        this.taskId = taskId;
+    }
+}
+
 class TaskDataParser {
     public static double getMinTemperatureForDay(String weatherJsonStr, int dayIndex)
             throws JSONException {
@@ -204,6 +244,10 @@ public class TasksAPI {
         new NetworkTaskListGetter(loadTasksOutputInteractorInterface).execute();
     }
 
+    public static void addComment(int id, String contenido, OnCommentAdded onCommentAdded){
+        new NetworkAddComment(id, contenido, onCommentAdded).execute();
+    }
+
     public static void login(String username, String password, OnLoginIteractorInterface onLoginIteractorInterface){
         new NetworkLogin(username, password, onLoginIteractorInterface).execute();
     }
@@ -212,22 +256,28 @@ public class TasksAPI {
         new NetworkLogout().execute();
     }
 
-    public static void getTask(int id, LoadTasksOutputInteractorInterface loadTasksOutputInteractorInterface) {
-        new NetworkTaskGetter(loadTasksOutputInteractorInterface).execute(id);
+    public static void getTask(int id, LoadTaskOutputInteractorInterface loadTaskOutputInteractorInterface) {
+        new NetworkTaskGetter(loadTaskOutputInteractorInterface).execute(id);
     }
 
-    public interface OnLoginIteractorInterface {
+    public interface OnLoginIteractorInterface extends TaskAPIInterface{
         void postLogin();
-
-        void loginFailed();
     }
 
-    public interface LoadTasksOutputInteractorInterface {
-        void postGetTaskList(List<Task> taskList);
-
-        void postGetTask(Task task);
-
+    interface TaskAPIInterface {
         void notAllowedHere();
+    }
+
+    public interface LoadTasksOutputInteractorInterface extends TaskAPIInterface {
+        void postGetTaskList(List<Task> taskList);
+    }
+
+    public interface LoadTaskOutputInteractorInterface extends TaskAPIInterface {
+        void postGetTask(Task task);
+    }
+
+    public interface OnCommentAdded extends TaskAPIInterface{
+        void postAddComment();
     }
 }
 

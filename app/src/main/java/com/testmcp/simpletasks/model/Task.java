@@ -38,9 +38,11 @@ public class Task implements Serializable{
         this.id = jsonObject.getInt(jsonID);
         this.estado = new Estado(jsonObject.getJSONObject(jsonEstado));
         this.taskEvents = new ArrayList<>();
-        JSONArray jsonArray = jsonObject.getJSONArray(jsonEvents);
-        for (int i = 0; i< jsonArray.length(); i++){
-            this.addEvent(TaskEvent.createEvent(jsonArray.getJSONObject(i)));
+        if(jsonObject.has(jsonEvents)) {
+            JSONArray jsonArray = jsonObject.getJSONArray(jsonEvents);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                this.addEvent(TaskEvent.createEvent(jsonArray.getJSONObject(i)));
+            }
         }
     }
 
@@ -82,5 +84,9 @@ public class Task implements Serializable{
 
     public ArrayList<TaskEvent> getTaskEvents() {
         return taskEvents;
+    }
+
+    public Integer getId() {
+        return id;
     }
 }

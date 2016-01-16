@@ -15,6 +15,7 @@ import java.net.URL;
 public class TasksURLs {
     private static String domain = "tasks.testmcp.com";
     private static String[] base_task_api_paths = {"tareas", "api"};
+    private static String add_comment = "comentario";
     private static String base_auth_path = "rest-auth";
     private static String scheme = "https";
 
@@ -92,6 +93,19 @@ public class TasksURLs {
     protected static URL getURL_logout() {
         try {
             Uri.Builder base_builder = getLogoutAPIUriBuilder();
+            String urlStr = base_builder.build().toString();
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            Log.e("URL ERROR", e.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static URL getURL_add_comment(int id) {
+        try {
+            Uri.Builder base_builder = getBaseTaskAPIUriBuilder();
+            base_builder.appendPath(Integer.toString(id)).appendPath("comentario").appendPath("");
             String urlStr = base_builder.build().toString();
             return new URL(urlStr);
         } catch (MalformedURLException e) {

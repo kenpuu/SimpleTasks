@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -49,7 +50,7 @@ public class NetworkGetter {
         }
     }
     // http://stackoverflow.com/questions/16150089/how-to-handle-cookies-in-httpurlconnection-using-cookiemanager
-    static void setCookies(HttpsURLConnection connection) {
+    private static void setCookies(HttpsURLConnection connection) {
         Map<String, List<String>> headerFields = connection.getHeaderFields();
         List<String> cookiesHeader = headerFields.get(COOKIES_HEADER);
         if(cookiesHeader != null)
@@ -61,7 +62,7 @@ public class NetworkGetter {
         }
     }
 
-    static void removeCookies() {
+    public static void removeCookies() {
         msCookieManager.getCookieStore().removeAll();
     }
 
@@ -73,6 +74,17 @@ public class NetworkGetter {
                 Log.i(TAG, cookie.toString());
             }
         }
+    }
+
+    static String getCookie(String cookieName) {
+        if (msCookieManager.getCookieStore().getCookies().size() > 0) {
+            //While joining the Cookies, use ',' or ';' as needed. Most of the server are using ';'
+            CookieStore cookieStore = msCookieManager.getCookieStore();
+            for (HttpCookie cookie : cookieStore.getCookies()) {
+                if (cookie.getName().equals(cookieName)) return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     private static void addCookiesToConnection(HttpURLConnection urlConnection) {
@@ -158,7 +170,13 @@ public class NetworkGetter {
         HttpsURLConnection.setDefaultSSLSocketFactory(ctx.getSocketFactory());
     }
 
-    private static void addJsonParamsToPost(HttpURLConnection urlConnection, JSONObject jsonParams) throws IOException {
+    private static void addJsonParamsToPost(HttpURLConnection urlConnection, JSONObject jsonObject) throws IOException {
+        JSONObject jsonParams = jsonObject;
+        try {
+            jsonParams.put("csrfmiddlewaretoken", getCookie("csrftoken"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (jsonParams.length() > 0) {
             DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
             wr.writeBytes(jsonParams.toString());
@@ -166,6 +184,11 @@ public class NetworkGetter {
             wr.close();
         }
     }
+
+    public static String httpPost(URL url, JSONObject jsonParams) throws LoginError{
+        return httpPost(url, jsonParams, 0);
+    }
+
     public static String httpPost(URL url, JSONObject jsonParams, int saveCookies) throws LoginError {
         try {
             HttpsURLConnection urlConnection;

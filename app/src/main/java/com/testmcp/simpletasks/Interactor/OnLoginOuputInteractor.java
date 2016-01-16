@@ -15,9 +15,8 @@ public class OnLoginOuputInteractor implements TasksAPI.OnLoginIteractorInterfac
 
     }
 
-    // TODO Mostrar algo cuando haya un inicio de sesión inválido
     @Override
-    public void loginFailed() {
+    public void notAllowedHere() {
 
     }
 }
