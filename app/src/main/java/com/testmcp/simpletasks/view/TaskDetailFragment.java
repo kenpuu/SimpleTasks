@@ -74,6 +74,34 @@ public class TaskDetailFragment extends Fragment {
         //return inflater.inflate(R.layout.fragment_task_detail, container, false);
     }
 
+    private void onClickOK(View v){
+        EditText editText = (EditText) getActivity().findViewById(R.id.comment_edit_text);
+        String contenido = editText.getText().toString();
+        if (contenido.length() > 0 )
+            TasksAPI.addComment(getTask().getId(), contenido, new OnCommentAddedOutputInteractor(this));
+    }
+    public void reset() {
+        ((TextView) this.getActivity().findViewById(R.id.task_detail_desc))
+                .setText(task.getDescripcion());
+        ArrayList<TaskEvent> taskEvents = task.getTaskEvents();
+        ListView listView = (ListView) getActivity().findViewById(R.id.event_list);
+        EventListAdapter eventListAdapter = new EventListAdapter(taskEvents);
+        listView.setAdapter(eventListAdapter);
+        Button button = (Button) getActivity().findViewById(R.id.add_comment_button);
+        EditText editText = (EditText) getActivity().findViewById(R.id.comment_edit_text);
+        editText.setText("");
+        final TaskDetailFragment taskDetailFragment = this;
+
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                onClickOK(v);
+            }
+        });
+    }
+
     /*
 
     public void onButtonPressed(Uri uri) {

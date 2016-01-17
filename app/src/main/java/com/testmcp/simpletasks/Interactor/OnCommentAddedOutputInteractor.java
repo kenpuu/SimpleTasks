@@ -1,7 +1,6 @@
 package com.testmcp.simpletasks.interactor;
 
 import com.testmcp.simpletasks.interactor.network.TasksAPI;
-import com.testmcp.simpletasks.model.Task;
 import com.testmcp.simpletasks.view.TaskDetailFragment;
 import com.testmcp.simpletasks.view.adapter.TaskListAdapter;
 
@@ -24,6 +23,7 @@ public class OnCommentAddedOutputInteractor implements TasksAPI.OnCommentAdded {
 
     @Override
     public void postAddComment() {
+        mFragment.reset();
         mFragment.updateTaskDetail();
     }
 }

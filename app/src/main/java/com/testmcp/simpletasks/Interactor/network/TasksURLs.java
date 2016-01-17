@@ -17,6 +17,7 @@ public class TasksURLs {
     private static String[] base_task_api_paths = {"tareas", "api"};
     private static String add_comment = "comentario";
     private static String base_auth_path = "rest-auth";
+    private static String get_token_path = "api-token-auth";
     private static String scheme = "https";
 
     protected static URI getBaseURI() {
@@ -43,6 +44,13 @@ public class TasksURLs {
         uri_builder.appendPath(base_auth_path);
         String auth_login_path = "login";
         uri_builder.appendPath(auth_login_path).appendPath("");
+        return uri_builder;
+    }
+
+    protected static Uri.Builder getTokenAPIUriBuilder(){
+        Uri.Builder uri_builder = new Uri.Builder();
+        uri_builder.scheme(scheme).authority(domain);
+        uri_builder.appendPath(get_token_path).appendPath("");
         return uri_builder;
     }
 
@@ -81,6 +89,18 @@ public class TasksURLs {
     protected static URL getURL_login() {
         try {
             Uri.Builder base_builder = getLoginAPIUriBuilder();
+            String urlStr = base_builder.build().toString();
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            Log.e("URL ERROR", e.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected static URL getURL_get_token() {
+        try {
+            Uri.Builder base_builder = getTokenAPIUriBuilder();
             String urlStr = base_builder.build().toString();
             return new URL(urlStr);
         } catch (MalformedURLException e) {

@@ -13,6 +13,7 @@ import android.view.View;
 import android.preference.PreferenceManager;
 import com.testmcp.simpletasks.R;
 import com.testmcp.simpletasks.interactor.network.NetworkGetter;
+import com.testmcp.simpletasks.interactor.network.TokenAuthPref;
 
 public class TasksList extends AppCompatActivity {
 
@@ -21,7 +22,8 @@ public class TasksList extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        NetworkGetter.setCookieManager(getApplicationContext());
+        //NetworkGetter.setCookieManager(getApplicationContext());
+        TokenAuthPref.setSharedPreferences(getApplicationContext());
         setContentView(R.layout.activity_tasks_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

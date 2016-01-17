@@ -37,25 +37,7 @@ public class LoadTaskOutputInteractor implements TasksAPI.LoadTaskOutputInteract
     public void postGetTask(Task task) {
         try {
             mFragment.setTask(task);
-            ((TextView) mFragment.getActivity().findViewById(R.id.task_detail_desc))
-                    .setText(task.getDescripcion());
-            ArrayList<TaskEvent> taskEvents = task.getTaskEvents();
-            ListView listView = (ListView) mFragment.getActivity().findViewById(R.id.event_list);
-            EventListAdapter eventListAdapter = new EventListAdapter(taskEvents);
-            listView.setAdapter(eventListAdapter);
-            Button button = (Button) mFragment.getActivity().findViewById(R.id.add_comment_button);
-            button.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    EditText editText = (EditText) mFragment.getActivity().findViewById(R.id.comment_edit_text);
-                    String contenido = editText.getText().toString();
-                    TasksAPI.addComment(mFragment.getTask().getId(), contenido, new OnCommentAddedOutputInteractor(mFragment));
-                }
-            });
-            //TextView t = (TextView) getView().findViewById(R.id.text_view_task);
-            //t.setText(task.toString());
+            mFragment.reset();
         } catch (NullPointerException e){
             e.printStackTrace();
         }

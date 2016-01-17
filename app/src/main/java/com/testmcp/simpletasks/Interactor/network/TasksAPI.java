@@ -46,18 +46,20 @@ class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
     }
 }
 
-class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
+class NetworkLogin extends AsyncTask<Void, Integer, String> {
 
     private TasksAPI.OnLoginIteractorInterface output;
     private String username;
     private String password;
+
+    private final String tokenJsr = "token";
     @Override
-    protected Integer doInBackground(Void... params) {
+    protected String doInBackground(Void... params) {
 
         //Uri
         // Will contain the raw JSON response as a string.
         //URL url = new URL(urls[0] + "&appid=" + appid);
-        URL url = TasksURLs.getURL_login();
+        URL url = TasksURLs.getURL_get_token();
         JSONObject jsonParam = new JSONObject();
         try {
             jsonParam.put("username", username);
@@ -68,17 +70,24 @@ class NetworkLogin extends AsyncTask<Void, Integer, Integer> {
 
         try {
             String taskJsonStr = NetworkGetter.httpPost(url, jsonParam, 1);
-            return 0;
+            JSONObject jsonObject;
+            try {
+                jsonObject = new JSONObject(taskJsonStr);
+                return jsonObject.getString(tokenJsr);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            }
         } catch (LoginError loginError) {
             loginError.printStackTrace();
         }
-        //return TaskDataParser.getTaskList(taskJsonStr);
-        return -1;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(Integer i) {
-        if (i == 0) output.postLogin();
+    protected void onPostExecute(String token) {
+        if (token != null) output.postLogin(token);
         else output.notAllowedHere();
     }
 
@@ -94,33 +103,26 @@ class NetworkLogout extends AsyncTask<Void, Void, Integer> {
     @Override
     protected Integer doInBackground(Void... params) {
 
-        //Uri
+        /*//Uri
         // Will contain the raw JSON response as a string.
         //URL url = new URL(urls[0] + "&appid=" + appid);
         URL url = TasksURLs.getURL_logout();
         JSONObject jsonParam = new JSONObject();
-        /*try {
-            jsonParam.put("username", username);
-            jsonParam.put("password", password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
-
         try {
             String taskJsonStr = NetworkGetter.httpPost(url, jsonParam, 1);
             return 0;
         } catch (LoginError loginError) {
             loginError.printStackTrace();
         } finally {
-            NetworkGetter.removeCookies();
+
         }
-        //return TaskDataParser.getTaskList(taskJsonStr);
+        //return TaskDataParser.getTaskList(taskJsonStr);*/
         return -1;
     }
 
     @Override
     protected void onPostExecute(Integer i) {
-        NetworkGetter.printCookies("onPostExecute Logout: ");
+        TokenAuthPref.delete();
     }
 
     public NetworkLogout() {
@@ -261,7 +263,7 @@ public class TasksAPI {
     }
 
     public interface OnLoginIteractorInterface extends TaskAPIInterface{
-        void postLogin();
+        void postLogin(String token);
     }
 
     interface TaskAPIInterface {
