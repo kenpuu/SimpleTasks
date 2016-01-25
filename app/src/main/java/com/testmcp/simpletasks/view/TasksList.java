@@ -1,5 +1,7 @@
 package com.testmcp.simpletasks.view;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,23 +12,30 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.preference.PreferenceManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+
 import com.testmcp.simpletasks.R;
-import com.testmcp.simpletasks.interactor.network.NetworkGetter;
-import com.testmcp.simpletasks.interactor.network.TokenAuthPref;
+import com.testmcp.simpletasks.interactor.OnTaskAddedOutputInteractor;
+import com.testmcp.simpletasks.interactor.network.TasksAPI;
+import com.testmcp.simpletasks.view.settings.AuthPref;
+import com.testmcp.simpletasks.view.settings.SettingsActivity;
 
 public class TasksList extends AppCompatActivity {
 
     private SwipeRefreshLayout swipeContainer;
-
+    private TasksListFragment tasksListFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //NetworkGetter.setCookieManager(getApplicationContext());
-        TokenAuthPref.setSharedPreferences(getApplicationContext());
+
+        AuthPref.setSharedPreferences(getApplicationContext());
         setContentView(R.layout.activity_tasks_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        tasksListFragment = (TasksListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_tasks_list);
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_listview_taks);
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -37,8 +46,7 @@ public class TasksList extends AppCompatActivity {
                 // once the network request has completed successfully.
                 Snackbar.make(swipeContainer, "Actualizando lista", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                TasksListFragment tasksListFragment = (TasksListFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.fragment_tasks_list);
+
                 tasksListFragment.updateList();
             }
         });
@@ -46,19 +54,47 @@ public class TasksList extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Actualizando lista", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Actualizando lista", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
                 TasksListFragment tasksListFragment = (TasksListFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.fragment_tasks_list);
+                addTaskDialogShow();
                 //tasksListFragment.updateList();
-                tasksListFragment.login();
-
+                //tasksListFragment.login();
 
 
             }
         });
     }
 
+    private void addTaskDialogShow() {
+        AlertDialog.Builder builderDialog = new AlertDialog.Builder(this);
+        builderDialog.setTitle(getString(R.string.add_task_title));
+        builderDialog.setMessage(getString(R.string.add_task_description));
+        final EditText input = new EditText(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        builderDialog.setView(input);
+        builderDialog.setPositiveButton("Aceptar",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String descripcion = input.getText().toString();
+                        if (descripcion.compareTo("") != 0) {
+                            TasksAPI.addTask(descripcion, new OnTaskAddedOutputInteractor(tasksListFragment));
+                        }
+                    }
+                });
+
+        builderDialog.setNegativeButton("Cancelar",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        builderDialog.show();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

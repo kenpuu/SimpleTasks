@@ -23,7 +23,7 @@
         <activity android:name=".view.TaskDetail" >
         </activity>
         <activity
-            android:name=".view.SettingsActivity"
+            android:name=".view.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".view.TasksList"
             android:theme="@style/AppTheme.NoActionBar" >

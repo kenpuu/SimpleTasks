@@ -3,7 +3,7 @@ package com.testmcp.simpletasks;
 /**
  * Created by mario on 26/12/2015.
  */
-/*class LoadTasksOutputInteractorTest implements TasksAPI.LoadTasksOutputInteractor {
+/*class LoadTasksOutputInteractorTest implements TasksAPI.OnLoadTasksOutputInteractor {
 
     @Override
     public void postGetTaskList(List<Task> taskList) {

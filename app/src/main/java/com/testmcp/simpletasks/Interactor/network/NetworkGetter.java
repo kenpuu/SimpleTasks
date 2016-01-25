@@ -1,5 +1,7 @@
 package com.testmcp.simpletasks.interactor.network;
 
+import com.testmcp.simpletasks.view.settings.AuthPref;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -21,7 +23,7 @@ import javax.net.ssl.X509TrustManager;
 public class NetworkGetter {
 
     private static void addTokenToConnection(HttpURLConnection urlConnection) {
-        String token = TokenAuthPref.get();
+        String token = AuthPref.getToken();
         if (token != null ) urlConnection.setRequestProperty("Authorization", "Token " + token);
     }
 
@@ -95,11 +97,7 @@ public class NetworkGetter {
         }
     }
 
-    public static String httpPost(URL url, JSONObject jsonParams) throws LoginError{
-        return httpPost(url, jsonParams, 0);
-    }
-
-    public static String httpPost(URL url, JSONObject jsonParams, int saveCookies) throws LoginError {
+    public static String httpPost(URL url, JSONObject jsonParams) throws LoginError {
         try {
             HttpsURLConnection urlConnection;
             setTrustManager();
@@ -109,6 +107,56 @@ public class NetworkGetter {
             urlConnection.setReadTimeout(15000);
             urlConnection.setConnectTimeout(15000);
             urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            addTokenToConnection(urlConnection);
+            addJsonParamsToPost(urlConnection, jsonParams);
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == 400) {
+                throw new LoginError();
+            }
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return null;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line).append("\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return null;
+            }
+            jsonStr = buffer.toString();
+            return jsonStr;
+
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+
+        }
+        return null;
+    }
+
+    public static String httpPut(URL url, JSONObject jsonParams) throws LoginError {
+        try {
+            HttpsURLConnection urlConnection;
+            setTrustManager();
+            BufferedReader reader;
+            String jsonStr;
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setReadTimeout(15000);
+            urlConnection.setConnectTimeout(15000);
+            urlConnection.setRequestMethod("PUT");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);

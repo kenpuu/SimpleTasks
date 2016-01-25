@@ -11,7 +11,6 @@
         <TextView
             android:id="@+id/task_detail_desc"
             android:layout_width="match_parent"
-            android:text="fasdfa"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-condensed"
             android:textSize="20sp"/>

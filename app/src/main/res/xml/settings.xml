@@ -3,14 +3,24 @@
 
     <PreferenceCategory android:title="@string/pref_credentials" >
         <EditTextPreference
+            android:id="@+id/username_edit_text"
             android:title="@string/pref_user_name"
             android:summary="@string/pref_user_name_summary"
             android:key="@string/pref_user_name_key"/>
-        <EditTextPreference
-            android:title="@string/pref_password"
-            android:summary="@string/pref_password_summary"
-            android:key="@string/pref_password_key"
-            android:inputType="textPassword"/>
+        <com.testmcp.simpletasks.view.settings.UserPassDialog
+            android:name="DialogoPersonalidazo"
+            android:defaultValue=""
+            android:hint="dialogoPersonalizado"
+            android:key="@string/password_dialog_key"
+            android:password="true"
+            android:title="Dialogo Personalizado"
+            android:enabled="false"/>
     </PreferenceCategory>
+    <com.testmcp.simpletasks.view.settings.LogoutConfirmDialog
+        android:key="@string/logout_confirm_key"
+        android:dialogMessage="@string/logout_pref_confirm"
+        android:title="@string/logout_pref_title"
+        android:summary="@string/logout_pref_summary"
+        />
 
 </PreferenceScreen>

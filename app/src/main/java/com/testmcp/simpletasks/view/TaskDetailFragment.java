@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,12 +16,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.testmcp.simpletasks.R;
-import com.testmcp.simpletasks.interactor.LoadTaskOutputInteractor;
+import com.testmcp.simpletasks.interactor.OnLoadTaskOutputInteractor;
 import com.testmcp.simpletasks.interactor.OnCommentAddedOutputInteractor;
 import com.testmcp.simpletasks.interactor.network.TasksAPI;
 import com.testmcp.simpletasks.model.TaskEvent;
 import com.testmcp.simpletasks.model.Task;
 import com.testmcp.simpletasks.view.adapter.EventListAdapter;
+import com.testmcp.simpletasks.view.settings.AuthPref;
 
 import java.util.ArrayList;
 
@@ -31,6 +35,7 @@ import java.util.ArrayList;
  */
 public class TaskDetailFragment extends Fragment {
     private Task task;
+    private MenuItem mMenuItem;
 
     public Task getTask() {
         return task;
@@ -47,16 +52,23 @@ public class TaskDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        //    mParam1 = getArguments().getString(ARG_PARAM1);
-        //    mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        this.setHasOptionsMenu(true);
+
     }
 
     public void updateTaskDetail(){
-        TasksAPI.getTask(task.getId(), new LoadTaskOutputInteractor(this));
+        TasksAPI.getTask(task.getId(), new OnLoadTaskOutputInteractor(this));
     }
 
+    public void checkCreator(){
+        if (AuthPref.getUsername().equals(task.getCreator())) {
+            if (mMenuItem != null) mMenuItem.setVisible(true);
+            //MenuItem item = (MenuItem) getActivity().findViewById(R.id.create_new);
+            /*MenuItem item = mMenu.getItem(R.id.create_new);
+            item.setVisible(true);
+            getActivity().invalidateOptionsMenu();*/
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,16 +82,18 @@ public class TaskDetailFragment extends Fragment {
             task = (Task) intent.getSerializableExtra("Task");
             updateTaskDetail();
         }
+
         return rootView;
         //return inflater.inflate(R.layout.fragment_task_detail, container, false);
     }
 
-    private void onClickOK(View v){
+    private void onAddTaskClickOK(View v){
         EditText editText = (EditText) getActivity().findViewById(R.id.comment_edit_text);
-        String contenido = editText.getText().toString();
-        if (contenido.length() > 0 )
-            TasksAPI.addComment(getTask().getId(), contenido, new OnCommentAddedOutputInteractor(this));
+        String descripcion = editText.getText().toString();
+        if (descripcion.length() > 0 )
+            TasksAPI.addComment(getTask().getId(), descripcion, new OnCommentAddedOutputInteractor(this));
     }
+
     public void reset() {
         ((TextView) this.getActivity().findViewById(R.id.task_detail_desc))
                 .setText(task.getDescripcion());
@@ -90,6 +104,7 @@ public class TaskDetailFragment extends Fragment {
         Button button = (Button) getActivity().findViewById(R.id.add_comment_button);
         EditText editText = (EditText) getActivity().findViewById(R.id.comment_edit_text);
         editText.setText("");
+        checkCreator();
         final TaskDetailFragment taskDetailFragment = this;
 
         button.setOnClickListener(new View.OnClickListener()
@@ -97,18 +112,33 @@ public class TaskDetailFragment extends Fragment {
             @Override
             public void onClick(View v)
             {
-                onClickOK(v);
+                onAddTaskClickOK(v);
             }
         });
     }
 
-    /*
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        mMenuItem = menu.findItem(R.id.share_task);
+        //menu.clear();
+        //inflater.inflate(R.menu.task_menu, menu);
+    }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.share_task) {
+            new ShareTaskDialog(this).show();
+            //http://www.androidpeople.com/android-listview-multiple-choice-example
+        /*lView = (ListView) findViewById(R.id.ListView01);
+//	Set option as Multiple Choice. So that user can able to select more the one option from list
+        lView.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_multiple_choice, lv_items));
+        lView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);*/
         }
-    }*/
+        return super.onOptionsItemSelected(item);
+
+    }
 
 
 }

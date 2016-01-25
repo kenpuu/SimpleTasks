@@ -3,6 +3,7 @@ package com.testmcp.simpletasks.interactor.network;
 import android.os.AsyncTask;
 
 import com.testmcp.simpletasks.model.Task;
+import com.testmcp.simpletasks.model.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +15,7 @@ import java.util.List;
 
 class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
 
-    private TasksAPI.LoadTaskOutputInteractorInterface output;
+    private TasksAPI.OnLoadTaskOutputInteractorInterface output;
     @Override
     protected Task doInBackground(Integer... params) {
 
@@ -41,7 +42,7 @@ class NetworkTaskGetter extends AsyncTask<Integer, Integer, Task> {
         }
     }
 
-    public NetworkTaskGetter(TasksAPI.LoadTaskOutputInteractorInterface output) {
+    public NetworkTaskGetter(TasksAPI.OnLoadTaskOutputInteractorInterface output) {
         this.output = output;
     }
 }
@@ -69,7 +70,7 @@ class NetworkLogin extends AsyncTask<Void, Integer, String> {
         }
 
         try {
-            String taskJsonStr = NetworkGetter.httpPost(url, jsonParam, 1);
+            String taskJsonStr = NetworkGetter.httpPost(url, jsonParam);
             JSONObject jsonObject;
             try {
                 jsonObject = new JSONObject(taskJsonStr);
@@ -99,7 +100,7 @@ class NetworkLogin extends AsyncTask<Void, Integer, String> {
 }
 
 class NetworkLogout extends AsyncTask<Void, Void, Integer> {
-
+    TasksAPI.OnLogoutIteractorInterface output;
     @Override
     protected Integer doInBackground(Void... params) {
 
@@ -122,16 +123,17 @@ class NetworkLogout extends AsyncTask<Void, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer i) {
-        TokenAuthPref.delete();
+        output.postLogout();
     }
 
-    public NetworkLogout() {
+    public NetworkLogout(TasksAPI.OnLogoutIteractorInterface output) {
+        this.output = output;
     }
 }
 
 class NetworkTaskListGetter extends AsyncTask<Void, Integer, List<Task>> {
 
-    private TasksAPI.LoadTasksOutputInteractorInterface output;
+    private TasksAPI.OnLoadTasksOutputInteractorInterface output;
     @Override
     protected List<Task> doInBackground(Void... params) {
 
@@ -159,19 +161,58 @@ class NetworkTaskListGetter extends AsyncTask<Void, Integer, List<Task>> {
         }
     }
 
-    public NetworkTaskListGetter(TasksAPI.LoadTasksOutputInteractorInterface output) {
+    public NetworkTaskListGetter(TasksAPI.OnLoadTasksOutputInteractorInterface output) {
         this.output = output;
     }
 }
 
-class NetworkAddComment extends AsyncTask<Void, Integer, Void> {
+class NetworkUserListGetter extends AsyncTask<Void, Integer, List<User>> {
+
+    private final Task task;
+    private final String username;
+    private TasksAPI.OnLoadUsersOutputInteractorInterface output;
+    @Override
+    protected List<User> doInBackground(Void... params) {
+
+        //Uri
+        // Will contain the raw JSON response as a string.
+        //URL url = new URL(urls[0] + "&appid=" + appid);
+        URL url = TasksURLs.getURL_list_users(task, username);
+        String userListJsonStr = null;
+        try {
+            userListJsonStr = NetworkGetter.httpGet(url);
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+            output.notAllowedHere();
+        }
+        if (userListJsonStr != null)
+            return TaskDataParser.getUserList(userListJsonStr);
+        else return new ArrayList<>();
+    }
+
+    @Override
+    protected void onPostExecute(List<User> users) {
+        //super.onPostExecute(tasks);
+        if (users != null) {
+            output.postGetUserList(users);
+        }
+    }
+
+    public NetworkUserListGetter(Task task, String username, TasksAPI.OnLoadUsersOutputInteractorInterface output) {
+        this.task = task;
+        this.output = output;
+        this.username = username;
+    }
+}
+
+class NetworkAddComment extends AsyncTask<Void, Integer, String> {
 
     private TasksAPI.OnCommentAdded output;
     private int taskId;
     private String contenido;
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected String doInBackground(Void... params) {
 
 
         URL url = TasksURLs.getURL_add_comment(taskId);
@@ -181,26 +222,118 @@ class NetworkAddComment extends AsyncTask<Void, Integer, Void> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String taskJsonStr = null;
         try {
-            taskJsonStr = NetworkGetter.httpPost(url, jsonParam);
+            return NetworkGetter.httpPost(url, jsonParam);
         } catch (LoginError loginError) {
             loginError.printStackTrace();
-            output.notAllowedHere();
         }
         return null;
     }
 
     @Override
-    protected void onPostExecute(Void dd) {
+    protected void onPostExecute(String dd) {
         super.onPostExecute(dd);
-        output.postAddComment();
+        if (dd == null){
+            output.notAllowedHere();
+        } else {
+            output.postAddComment();
+        }
     }
 
     public NetworkAddComment(int taskId, String contenido, TasksAPI.OnCommentAdded output) {
         this.output = output;
         this.contenido = contenido;
         this.taskId = taskId;
+    }
+}
+
+class NetworkAddTask extends AsyncTask<Void, Integer, String> {
+
+    private TasksAPI.OnTaskAdded output;
+    private String descripcion;
+
+    @Override
+    protected String doInBackground(Void... params) {
+
+
+        URL url = TasksURLs.getURL_list_tasks();
+        JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("descripcion", descripcion);
+            jsonParam.put("estado", 1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String taskJsonStr = null;
+        try {
+            return NetworkGetter.httpPost(url, jsonParam);
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(String dd) {
+        super.onPostExecute(dd);
+        if (dd == null){
+            output.notAllowedHere();
+        } else {
+            output.postAddTask();
+        }
+    }
+
+    public NetworkAddTask(String descripcion, TasksAPI.OnTaskAdded output) {
+        this.output = output;
+        this.descripcion = descripcion;
+    }
+}
+
+class NetworkAsingUsers extends AsyncTask<Void, Integer, String> {
+
+    private Task task;
+    private int[] userIDs;
+    private TasksAPI.OnAsignedUsers output;
+    private String descripcion;
+
+    @Override
+    protected String doInBackground(Void... params) {
+
+
+        URL url = TasksURLs.getURL_task(task.getId());
+        JSONObject jsonParam = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        for (int i = 0; i< userIDs.length; i++) jsonArray.put(userIDs[i]);
+        try {
+            jsonParam.put("usuarios_asignados", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String taskJsonStr = null;
+        try {
+            return NetworkGetter.httpPut(url, jsonParam);
+        } catch (LoginError loginError) {
+            loginError.printStackTrace();
+
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(String dd) {
+        super.onPostExecute(dd);
+        if (dd == null){
+            output.notAllowedHere();
+        } else {
+            output.postAsignedUsers(userIDs);
+        }
+    }
+
+    public NetworkAsingUsers(Task task, int[] userIDs, TasksAPI.OnAsignedUsers output) {
+        this.task = task;
+        this.userIDs = userIDs;
+        this.output = output;
     }
 }
 
@@ -238,12 +371,38 @@ class TaskDataParser {
             return null;
         }
     }
+
+    public static List<User> getUserList(String userListJsonStr) {
+        List<User> userList = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(userListJsonStr);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                userList.add(new User(jsonArray.getJSONObject(i)));
+            }
+            return userList;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
 
 public class TasksAPI {
 
-    public static void getTasklist(LoadTasksOutputInteractorInterface loadTasksOutputInteractorInterface){
-        new NetworkTaskListGetter(loadTasksOutputInteractorInterface).execute();
+    public static void getTasklist(OnLoadTasksOutputInteractorInterface onLoadTasksOutputInteractorInterface){
+        new NetworkTaskListGetter(onLoadTasksOutputInteractorInterface).execute();
+    }
+
+    public static void getUserlist(Task task, String username, OnLoadUsersOutputInteractorInterface onLoadUsersOutputInteractorInterface){
+        new NetworkUserListGetter(task, username, onLoadUsersOutputInteractorInterface).execute();
+    }
+
+    public static void addTask(String descripcion, OnTaskAdded onTaskAdded){
+        new NetworkAddTask(descripcion, onTaskAdded).execute();
+    }
+
+    public static void asingUsers(Task task, int[] userIDs, OnAsignedUsers onAsignedUsers){
+        new NetworkAsingUsers(task, userIDs, onAsignedUsers).execute();
     }
 
     public static void addComment(int id, String contenido, OnCommentAdded onCommentAdded){
@@ -254,12 +413,12 @@ public class TasksAPI {
         new NetworkLogin(username, password, onLoginIteractorInterface).execute();
     }
 
-    public static void logout(){
-        new NetworkLogout().execute();
+    public static void logout(OnLogoutIteractorInterface onLogoutIteractorInterface){
+        new NetworkLogout(onLogoutIteractorInterface).execute();
     }
 
-    public static void getTask(int id, LoadTaskOutputInteractorInterface loadTaskOutputInteractorInterface) {
-        new NetworkTaskGetter(loadTaskOutputInteractorInterface).execute(id);
+    public static void getTask(int id, OnLoadTaskOutputInteractorInterface onLoadTaskOutputInteractorInterface) {
+        new NetworkTaskGetter(onLoadTaskOutputInteractorInterface).execute(id);
     }
 
     public interface OnLoginIteractorInterface extends TaskAPIInterface{
@@ -270,16 +429,32 @@ public class TasksAPI {
         void notAllowedHere();
     }
 
-    public interface LoadTasksOutputInteractorInterface extends TaskAPIInterface {
+    public interface OnLoadTasksOutputInteractorInterface extends TaskAPIInterface {
         void postGetTaskList(List<Task> taskList);
     }
 
-    public interface LoadTaskOutputInteractorInterface extends TaskAPIInterface {
+    public interface OnLoadUsersOutputInteractorInterface extends TaskAPIInterface {
+        void postGetUserList(List<User> taskList);
+    }
+
+    public interface OnLoadTaskOutputInteractorInterface extends TaskAPIInterface {
         void postGetTask(Task task);
     }
 
     public interface OnCommentAdded extends TaskAPIInterface{
         void postAddComment();
+    }
+
+    public interface OnTaskAdded extends TaskAPIInterface{
+        void postAddTask();
+    }
+
+    public interface OnAsignedUsers extends TaskAPIInterface{
+        void postAsignedUsers(int[] userIDs);
+    }
+
+    public interface OnLogoutIteractorInterface {
+        void postLogout();
     }
 }
 

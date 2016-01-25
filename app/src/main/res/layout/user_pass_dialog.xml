@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+android:layout_height="match_parent"
+android:layout_width="match_parent"
+android:orientation="vertical"
+android:id="@+id/root"
+xmlns:android="http://schemas.android.com/apk/res/android">
+<TextView
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:id="@+id/TextView_Pwd1"
+    android:text="@string/settings_password"
+    android:textStyle="bold"
+    android:layout_gravity="center" />
+<EditText
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:id="@+id/EditText_Pwd1"
+    android:inputType="textPassword" />
+<TextView
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:id="@+id/TextView_Pwd2"
+    android:text="@string/settings_password2"
+    android:textStyle="bold"
+    android:layout_gravity="center" />
+<EditText
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:id="@+id/EditText_Pwd2"
+    android:inputType="textPassword" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:id="@+id/layout_incorrect_passwords"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:tint="#ff4343" />
+
+        <TextView
+        android:icon="@android:drawable/ic_menu_save"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/TextView_PwdProblem"
+        android:textStyle="bold"
+        android:text="@string/passwords_dont_match"
+        android:gravity="center"
+        android:layout_gravity="center_vertical" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layout_correct_passwords"
+        android:visibility="invisible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView2"
+            android:src="@android:drawable/ic_dialog_info"
+            android:layout_gravity="center_vertical"
+            android:tint="#5edc67" />
+
+        <TextView
+        android:icon="@android:drawable/ic_menu_save"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/TextView_PwdNoProblem"
+        android:textStyle="bold"
+        android:text="@string/passwords_match"
+        android:gravity="center" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -3,6 +3,8 @@ package com.testmcp.simpletasks.interactor.network;
 import android.net.Uri;
 import android.util.Log;
 
+import com.testmcp.simpletasks.model.Task;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,7 +17,9 @@ import java.net.URL;
 public class TasksURLs {
     private static String domain = "tasks.testmcp.com";
     private static String[] base_task_api_paths = {"tareas", "api"};
+    private static String[] base_perm_api_paths = {"permisos", "api"};
     private static String add_comment = "comentario";
+    private static String find_users = "find_users";
     private static String base_auth_path = "rest-auth";
     private static String get_token_path = "api-token-auth";
     private static String scheme = "https";
@@ -33,6 +37,15 @@ public class TasksURLs {
         Uri.Builder uri_builder = new Uri.Builder();
         uri_builder.scheme(scheme).authority(domain);
         for (String path: base_task_api_paths) {
+            uri_builder.appendPath(path).appendPath("");
+        }
+        return uri_builder;
+    }
+
+    protected static Uri.Builder getBasePermAPIUriBuilder(){
+        Uri.Builder uri_builder = new Uri.Builder();
+        uri_builder.scheme(scheme).authority(domain);
+        for (String path: base_perm_api_paths) {
             uri_builder.appendPath(path).appendPath("");
         }
         return uri_builder;
@@ -126,6 +139,23 @@ public class TasksURLs {
         try {
             Uri.Builder base_builder = getBaseTaskAPIUriBuilder();
             base_builder.appendPath(Integer.toString(id)).appendPath("comentario").appendPath("");
+            String urlStr = base_builder.build().toString();
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            Log.e("URL ERROR", e.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static URL getURL_list_users(Task task, String username) {
+        try {
+            Uri.Builder base_builder = getBaseTaskAPIUriBuilder();
+            base_builder.appendPath(Integer.toString(task.getId()))
+                    .appendPath(find_users)
+                    .appendPath(username)
+                    .appendPath("");
+            if(username.length() == 0) base_builder.appendEncodedPath("/");
             String urlStr = base_builder.build().toString();
             return new URL(urlStr);
         } catch (MalformedURLException e) {

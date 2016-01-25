@@ -1,6 +1,5 @@
 package com.testmcp.simpletasks.interactor;
 
-import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -8,11 +7,9 @@ import android.widget.ListView;
 import com.testmcp.simpletasks.R;
 import com.testmcp.simpletasks.model.Task;
 import com.testmcp.simpletasks.interactor.network.TasksAPI;
-import com.testmcp.simpletasks.view.TaskDetail;
 import com.testmcp.simpletasks.view.TasksListFragment;
 import com.testmcp.simpletasks.view.adapter.TaskListAdapter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +17,10 @@ import java.util.List;
 /**
  * Created by mario on 28/12/2015.
  */
-public class LoadTasksOutputInteractor implements TasksAPI.LoadTasksOutputInteractorInterface {
+public class OnLoadTasksOutputInteractor implements TasksAPI.OnLoadTasksOutputInteractorInterface {
     TasksListFragment mFragment;
     TaskListAdapter taskListAdapter;
-    public LoadTasksOutputInteractor(TasksListFragment fragment) {
+    public OnLoadTasksOutputInteractor(TasksListFragment fragment) {
         this.mFragment = fragment;
     }
 
@@ -38,9 +35,14 @@ public class LoadTasksOutputInteractor implements TasksAPI.LoadTasksOutputIntera
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Task task = taskListAdapter.getItem(position);
-                    Intent intent = new Intent(mFragment.getContext(), TaskDetail.class)
-                            .putExtra("Task", (Serializable) task);
-                    mFragment.startActivity(intent);
+                    mFragment.openTask(task);
+                }
+            });
+            lv_tasks.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    Task task = taskListAdapter.getItem(position);
+                    return true;
                 }
             });
             mFragment.setUpdating(false);

@@ -1,7 +1,23 @@
 <resources>
     <string name="app_name">SimpleTasks</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Preferencias</string>
 
     <string name="cambioestado_tareamarcada">Tarea marcada como</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="settings_password">Contraseña</string>
+    <string name="settings_password2">Repite la contraseña</string>
+    <string name="passwords_dont_match">Las contraseñas no coinciden o son demasiado cortas</string>
+    <string name="passwords_match">Las contraseñas coinciden</string>
+    <string name="settings_user">Usuario</string>
+    <string name="logout_pref_summary">Se borrarán los datos almacenados para el usuario</string>
+    <string name="logout_pref_title">Cerrar sesión</string>
+    <string name="logout_pref_confirm">¿Estás seguro de que quieres cerrar la sesión?</string>
+    <string name="password_dialog_key">password_dialog_key</string>
+    <string name="add_task_title">Nueva Tarea</string>
+    <string name="add_task_description">Introduce la descripción de la tarea</string>
+    <string name="logout_confirm_key">logout_confirm_key</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="asign_user_title">Asignar usuarios</string>
+    <string name="asign_user_description">Estos usuarios podrán comentar la tarea y cerrarla</string>
 </resources>
