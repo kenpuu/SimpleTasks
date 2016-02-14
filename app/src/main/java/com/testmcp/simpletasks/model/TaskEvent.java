@@ -32,6 +32,8 @@ public class TaskEvent implements Serializable{
                 return new Comment(jsonObject);
             case "cambio_estado":
                 return new CambioEstado(jsonObject);
+            case "imagen":
+                return new Imagen(jsonObject);
         }
         return null;
     }

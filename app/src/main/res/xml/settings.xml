@@ -13,7 +13,7 @@
             android:hint="dialogoPersonalizado"
             android:key="@string/password_dialog_key"
             android:password="true"
-            android:title="Dialogo Personalizado"
+            android:title="Contraseña"
             android:enabled="false"/>
     </PreferenceCategory>
     <com.testmcp.simpletasks.view.settings.LogoutConfirmDialog

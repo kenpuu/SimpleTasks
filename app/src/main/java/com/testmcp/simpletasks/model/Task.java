@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Task implements Serializable{
+    private String name_creator;
     private String descripcion;
     private String fecha;
     private String fecha_limite;
@@ -24,6 +25,7 @@ public class Task implements Serializable{
     private static final String jsonFechaLimite = "fecha_limite";
     private static final String jsonEvents = "eventos";
     private static final String jsonCreator = "created_by";
+    private static final String jsonNameCreator = "name_created_by";
     private static final String jsonAsignedUsers = "usuarios_asignados";
     public Task(String descripcion, int id) {
         this.descripcion = descripcion;
@@ -56,6 +58,9 @@ public class Task implements Serializable{
         }
         if(jsonObject.has(jsonCreator)) {
             this.creator = jsonObject.getString(jsonCreator);
+        }
+        if(jsonObject.has(jsonNameCreator)) {
+            this.name_creator = jsonObject.getString(jsonNameCreator);
         }
     }
 
@@ -119,4 +124,10 @@ public class Task implements Serializable{
         this.idsUsuariosAsignados.clear();
         for (int i=0; i<userIDs.length; i++) idsUsuariosAsignados.add(userIDs[i]);
     }
+
+    public String getName_creator() {
+        return name_creator;
+    }
+
+
 }

@@ -20,4 +20,7 @@
     <string name="cancelar">Cancelar</string>
     <string name="asign_user_title">Asignar usuarios</string>
     <string name="asign_user_description">Estos usuarios podrán comentar la tarea y cerrarla</string>
+    <string name="title_long_click_task_options">Acciones</string>
+    <string name="delete_task_confirmation_title">Eliminar tarea</string>
+    <string name="delete_task_confirmation_message">¿Seguro que quieres borrarla? Desaparecerán todos los eventos y comentarios.</string>
 </resources>

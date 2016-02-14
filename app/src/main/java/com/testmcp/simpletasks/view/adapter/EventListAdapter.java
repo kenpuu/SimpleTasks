@@ -24,9 +24,10 @@ public class EventListAdapter extends BaseAdapter { //ArrayAdapter<TaskEvent> {
 
     private ArrayList<TaskEvent> taskEvents;
 
-    private static final int TYPE_MAX_COUNT = 2;
+    private static final int TYPE_MAX_COUNT = 3;
     public static final int TYPE_COMMENT = 0;
     public static final int TYPE_CAMBIOESTADO = 1;
+    public static final int TYPE_IMAGEN = 2;
 
     /*public EventListAdapter(Context context, int textViewResourceId, ArrayList<TaskEvent> objects) {
         super(context, textViewResourceId, objects);
@@ -55,7 +56,8 @@ public class EventListAdapter extends BaseAdapter { //ArrayAdapter<TaskEvent> {
     @Override
     public int getItemViewType(int position) {
         if (getItem(position) instanceof Comment) return TYPE_COMMENT;
-        else return TYPE_CAMBIOESTADO;
+        else if (getItem(position) instanceof CambioEstado) return TYPE_CAMBIOESTADO;
+        else return TYPE_IMAGEN;
     }
 
     @Override
@@ -76,6 +78,9 @@ public class EventListAdapter extends BaseAdapter { //ArrayAdapter<TaskEvent> {
             } else if (tipo == TYPE_CAMBIOESTADO) {
                 convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.cambio_estado_layout, null);
                 Log.i("GETVIEW_EVENT", "Tipo TYPE_CAMBIOESTADO");
+            } else if (tipo == TYPE_IMAGEN) {
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.imagen_layout, null);
+                Log.i("GETVIEW_EVENT", "Tipo TYPE_IMAGEN");
             }
             layout = new TaskEventItemLayout(convertView, tipo);
             convertView.setTag(layout);

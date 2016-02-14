@@ -95,7 +95,7 @@ public class UserPassDialog  extends DialogPreference {
     protected void onDialogClosed(boolean positiveResult) {
         // When the user selects "OK", persist the new value
         if (positiveResult) {
-            TasksAPI.login(AuthPref.getUsername(), getPassword1(), new OnLoginOuputInteractor());
+            TasksAPI.login(AuthPref.getUsername(), getPassword1(), new OnLoginOuputInteractor(getContext()));
         }
     }
 }

@@ -27,15 +27,33 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:id="@+id/footer">
-
-            <EditText
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/comment_edit_text"
                 android:layout_weight="2"
-                android:layout_gravity="start"/>
+                android:layout_height="wrap_content" >
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="textMultiLine"
+                    android:ems="10"
+                    android:id="@+id/comment_edit_text"
+                    android:layout_gravity="start"/>
+
+                <ImageButton
+                    android:id="@+id/image_task_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:layout_centerVertical="true"
+                    android:layout_margin="5dp"
+                    android:text="Button"
+                    android:background="#00ffffff"
+                    android:tint="#414141" />
+
+            </RelativeLayout>
+
 
             <Button
                 android:layout_width="match_parent"

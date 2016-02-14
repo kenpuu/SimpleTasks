@@ -1,6 +1,9 @@
 package com.testmcp.simpletasks.view;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -12,10 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.testmcp.simpletasks.R;
+import com.testmcp.simpletasks.interactor.OnImageAddedOutputInteractor;
 import com.testmcp.simpletasks.interactor.OnLoadTaskOutputInteractor;
 import com.testmcp.simpletasks.interactor.OnCommentAddedOutputInteractor;
 import com.testmcp.simpletasks.interactor.network.TasksAPI;
@@ -24,6 +29,9 @@ import com.testmcp.simpletasks.model.Task;
 import com.testmcp.simpletasks.view.adapter.EventListAdapter;
 import com.testmcp.simpletasks.view.settings.AuthPref;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -36,6 +44,11 @@ import java.util.ArrayList;
 public class TaskDetailFragment extends Fragment {
     private Task task;
     private MenuItem mMenuItem;
+
+    private static final int REQUEST_CODE = 1;
+    public int TAKE_PICTURE = 1;
+
+    Bitmap bitmap;
 
     public Task getTask() {
         return task;
@@ -103,6 +116,16 @@ public class TaskDetailFragment extends Fragment {
         listView.setAdapter(eventListAdapter);
         Button button = (Button) getActivity().findViewById(R.id.add_comment_button);
         EditText editText = (EditText) getActivity().findViewById(R.id.comment_edit_text);
+        ImageButton imageButton = (ImageButton) getActivity().findViewById(R.id.image_task_button);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                startActivityForResult(intent, TAKE_PICTURE);
+
+            }
+        });
         editText.setText("");
         checkCreator();
         final TaskDetailFragment taskDetailFragment = this;
@@ -140,5 +163,21 @@ public class TaskDetailFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // We need to recyle unused bitmaps
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+            //InputStream stream = getActivity().getContentResolver().openInputStream(data.getData());
+            bitmap = (Bitmap) data.getExtras().get("data");
 
+            TasksAPI.addImage(task.getId(), bitmap, new OnImageAddedOutputInteractor(this));
+            //bitmap = BitmapFactory.decodeStream(stream);
+            //stream.close();
+            //imageView.setImageBitmap(bitmap);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

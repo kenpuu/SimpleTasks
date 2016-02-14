@@ -19,6 +19,7 @@ public class TasksURLs {
     private static String[] base_task_api_paths = {"tareas", "api"};
     private static String[] base_perm_api_paths = {"permisos", "api"};
     private static String add_comment = "comentario";
+    private static String estado = "estado";
     private static String find_users = "find_users";
     private static String base_auth_path = "rest-auth";
     private static String get_token_path = "api-token-auth";
@@ -156,6 +157,42 @@ public class TasksURLs {
                     .appendPath(username)
                     .appendPath("");
             if(username.length() == 0) base_builder.appendEncodedPath("/");
+            String urlStr = base_builder.build().toString();
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            Log.e("URL ERROR", e.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static  URL getURL_from_string(String urlStr){
+        try {
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            Log.e("URL ERROR", e.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static URL getURL_add_image(int taskId) {
+        try {
+            Uri.Builder base_builder = getBaseTaskAPIUriBuilder();
+            base_builder.appendPath(Integer.toString(taskId)).appendPath("imagen").appendPath("");
+            String urlStr = base_builder.build().toString();
+            return new URL(urlStr);
+        } catch (MalformedURLException e) {
+            Log.e("URL ERROR", e.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static URL getURL_list_estados() {
+        try {
+            Uri.Builder base_builder = getBaseTaskAPIUriBuilder();
+            base_builder.appendPath(estado).appendPath("");
             String urlStr = base_builder.build().toString();
             return new URL(urlStr);
         } catch (MalformedURLException e) {

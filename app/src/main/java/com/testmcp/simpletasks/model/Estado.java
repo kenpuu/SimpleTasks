@@ -20,6 +20,10 @@ public class Estado implements Serializable {
         this.descripcion = jsonObject.getString(jsonDescripcion);
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return descripcion;

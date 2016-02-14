@@ -13,7 +13,7 @@ public class TaskItemLayout extends LinearLayout{
     private TextView fecha;
 
     private TextView last_event;
-    private TextView end_date;
+    private TextView created_by;
     private TextView estado;
 
     public TaskItemLayout(Context context) {
@@ -21,7 +21,8 @@ public class TaskItemLayout extends LinearLayout{
         inflate(context, R.layout.list_item_task, this);
         descripcion = (TextView) findViewById(R.id.task_item_desc);
         fecha = (TextView) findViewById(R.id.task_item_date);
-        end_date = (TextView) findViewById(R.id.task_item_end_date);
+        created_by = (TextView) findViewById(R.id.task_created_by);
+        //end_date = (TextView) findViewById(R.id.task_item_end_date);
         estado = (TextView) findViewById(R.id.task_item_estado);
     }
 
@@ -30,10 +31,11 @@ public class TaskItemLayout extends LinearLayout{
 
         estado.setText(task.getEstado().toString());
         fecha.setText(task.getFecha());
-        String fecha_limite = task.getFecha_limite();
+        /*String fecha_limite = task.getFecha_limite();
         if (  fecha_limite != null){
             end_date.setText(fecha_limite);
-        }
+        }*/
+        created_by.setText(task.getName_creator());
     }
 
 }
