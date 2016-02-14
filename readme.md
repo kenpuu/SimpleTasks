@@ -12,3 +12,5 @@ Para poder usar la aplicación hay que hacer login en la ventana de preferencias
   - demo3
 
 Para los tres la contraseña es demodemo.
+
+El archivo apk está en app/app-release.apk
